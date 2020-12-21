@@ -1,8 +1,17 @@
 # -*- coding: utf-8 -*-
 from flask import Flask, request, render_template, redirect,url_for
 import json
-
+import time
+import random
+from prometheus_client import start_http_server
+from prometheus_client import Counter
+from prometheus_client import Gauge
 app = Flask(__name__)
+
+REQUESTS = Counter('twitter_total', 'twitter requested.')
+EXCEPTIONS = Counter('twitter_exceptions_total', 'Exceptions serving twitter.')
+INPROGRESS = Gauge('twitter_inprogress', 'Number of twitter request in progress.')
+LAST = Gauge('twitter_last_time_seconds', 'The last time a Hello World was served.')
 
 def listToString(s):  
     
@@ -46,6 +55,12 @@ def home():
 
 @app.route('/', methods=['POST'])
 def test():
+    
+    INPROGRESS.inc()
+    REQUESTS.inc() #you can pass a value to inc which will increase the counter by said value
+    with EXCEPTIONS.count_exceptions():
+        if random.random() < 0.2:
+            raise Exceptionss
     query = request.form['validation']
     print(query)
     tweets = search(listToString([query]))
@@ -56,4 +71,5 @@ def test():
 
 
 if __name__ == '__main__':
+	start_http_server(8010)
 	app.run(host='0.0.0.0')
