@@ -1,0 +1,10 @@
+version: '3.7'
+services:
+  application:
+    build:
+      dockerfile: "./Docker/prod/Dockerfile"
+      context: ../../
+    image: efrei/tweets
+    container_name: tweets-prod
+    ports:
+      - "5000:5000"
